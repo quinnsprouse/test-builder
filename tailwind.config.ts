@@ -110,6 +110,7 @@ const config = {
       );
     },
     require("tailwindcss-animate"),
+    require("@tailwindcss/forms"),
   ],
 } satisfies Config;
 
