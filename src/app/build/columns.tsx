@@ -1,6 +1,6 @@
 "use client";
-
 import { ColumnDef } from "@tanstack/react-table";
+import { Badge } from "@tremor/react";
 import { ArrowUpDown, MoreHorizontal } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -11,52 +11,93 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { Id } from "../../../convex/_generated/dataModel";
+import {
+  CheckCircleIcon,
+  SparklesIcon,
+  XCircleIcon,
+} from "@heroicons/react/24/outline";
+import { WrenchIcon } from "@heroicons/react/20/solid";
+export interface Test {
+  _id: Id<"tests">;
+  _creationTime: number;
+  automated: boolean;
+  createdBy: string;
+  createdByImg: string;
+  desc: string;
+  lastTested: string;
+  status: "pending" | "pass" | "fail";
+  steps: Array<{
+    stepDesc: string;
+    stepType: string;
+  }>;
+  notes: string;
+}
 
-// This type is used to define the shape of our data.
-// You can use a Zod schema here if you want.
-export type Payment = {
-  id: string;
-  amount: number;
-  status: "pending" | "processing" | "success" | "failed";
-  email: string;
-};
-
-export const columns: ColumnDef<Payment>[] = [
+export const columns: ColumnDef<Test>[] = [
   {
-    accessorKey: "status",
-    header: "Status",
+    accessorKey: "desc",
+    header: "Description",
   },
   {
-    accessorKey: "email",
+    accessorKey: "createdBy",
     header: ({ column }) => {
       return (
         <Button
           variant="ghost"
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
         >
-          Email
+          Created By
           <ArrowUpDown className="ml-2 h-4 w-4" />
         </Button>
       );
     },
   },
   {
-    accessorKey: "amount",
-    header: () => <div className="text-right">Amount</div>,
-    cell: ({ row }) => {
-      const amount = parseFloat(row.getValue("amount"));
-      const formatted = new Intl.NumberFormat("en-US", {
-        style: "currency",
-        currency: "USD",
-      }).format(amount);
+    accessorKey: "lastTested",
+    header: "Last Tested",
+  },
+  {
+    accessorKey: "notes",
+    header: "Notes",
+  },
+  {
+    accessorKey: "status",
+    header: "Status",
+    cell: ({ getValue }) => {
+      // Explicitly assert the type of status
+      const status = getValue() as "pending" | "pass" | "fail";
 
-      return <div className="text-right font-medium">{formatted}</div>;
+      let color = "gray"; // Default color
+
+      if (status === "pending") color = "yellow";
+      else if (status === "pass") color = "green";
+      else if (status === "fail") color = "red";
+
+      return <Badge color={color}>{status}</Badge>;
+    },
+  },
+  {
+    accessorKey: "automated",
+    header: "Automated",
+    cell: ({ getValue }) => {
+      // Explicitly assert the type of status
+      const automated = getValue() as boolean;
+      return (
+        <div>
+          {automated ? (
+            <CheckCircleIcon className="h-6 w-6" />
+          ) : (
+            <XCircleIcon className="h-6 w-6" />
+          )}
+        </div>
+      );
     },
   },
   {
     id: "actions",
     cell: ({ row }) => {
-      const payment = row.original;
+      const test = row.original;
 
       return (
         <DropdownMenu>
@@ -69,13 +110,12 @@ export const columns: ColumnDef<Payment>[] = [
           <DropdownMenuContent align="end">
             <DropdownMenuLabel>Actions</DropdownMenuLabel>
             <DropdownMenuItem
-              onClick={() => navigator.clipboard.writeText(payment.id)}
+              onClick={() => navigator.clipboard.writeText(test.createdBy)}
             >
-              Copy payment ID
+              Copy Created By
             </DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem>View customer</DropdownMenuItem>
-            <DropdownMenuItem>View payment details</DropdownMenuItem>
+            <DropdownMenuItem>View test details</DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       );

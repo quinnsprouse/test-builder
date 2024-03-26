@@ -2,7 +2,7 @@
 import { useRouter } from "next/navigation";
 import { ModeToggle } from "./mode-toggle";
 import { Button } from "./ui/button";
-import { useUser } from "@clerk/nextjs";
+import { SignedIn, SignedOut, useUser } from "@clerk/nextjs";
 import { useClerk } from "@clerk/clerk-react";
 import { use, useState } from "react";
 
@@ -30,7 +30,7 @@ export default function LandingHeader() {
         </div>
         {isLoaded && (
           <div className="flex flex-1 items-center justify-end gap-x-6">
-            {isSignedIn ? (
+            <SignedIn>
               <>
                 <Button
                   variant="ghost"
@@ -40,14 +40,15 @@ export default function LandingHeader() {
                 </Button>
                 <Button onClick={() => router.push("/build")}>Dashboard</Button>
               </>
-            ) : (
+            </SignedIn>
+            <SignedOut>
               <>
                 <Button variant="ghost" onClick={() => router.push("/sign-in")}>
-                  Login in
+                  Log in
                 </Button>
                 <Button onClick={() => router.push("/sign-up")}>Sign up</Button>
               </>
-            )}
+            </SignedOut>
             <ModeToggle />
           </div>
         )}

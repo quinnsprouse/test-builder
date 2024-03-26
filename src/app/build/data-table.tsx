@@ -1,5 +1,6 @@
 "use client";
 
+import React, { useState } from "react";
 import {
   ColumnDef,
   ColumnFiltersState,
@@ -12,7 +13,6 @@ import {
   getSortedRowModel,
   useReactTable,
 } from "@tanstack/react-table";
-
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -21,7 +21,6 @@ import {
   DropdownMenuContent,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-
 import {
   Table,
   TableBody,
@@ -30,9 +29,10 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import React from "react";
+import { Skeleton } from "@/components/ui/skeleton";
+import { DataTableFacetedFilter } from "@/components/data-table-faceted-filter";
 
-interface DataTableProps<TData, TValue> {
+export interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
 }
@@ -65,16 +65,31 @@ export function DataTable<TData, TValue>({
     },
   });
 
+  const isDataLoaded = (): boolean => {
+    return data !== undefined;
+  };
+
   return (
     <div>
       <div className="flex items-center py-4">
         <Input
-          placeholder="Filter emails..."
-          value={(table.getColumn("email")?.getFilterValue() as string) ?? ""}
+          placeholder="Filter Creaters..."
+          value={
+            (table.getColumn("createdBy")?.getFilterValue() as string) ?? ""
+          }
           onChange={(event) =>
-            table.getColumn("email")?.setFilterValue(event.target.value)
+            table.getColumn("createdBy")?.setFilterValue(event.target.value)
           }
           className="max-w-sm"
+        />
+        <DataTableFacetedFilter
+          column={table.getColumn("status")}
+          title="Status"
+          options={[
+            { value: "pass", label: "Pass" },
+            { value: "fail", label: "Fail" },
+            { value: "pending", label: "Pending" },
+          ]}
         />
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
@@ -86,22 +101,19 @@ export function DataTable<TData, TValue>({
             {table
               .getAllColumns()
               .filter((column) => column.getCanHide())
-              .map((column) => {
-                return (
-                  <DropdownMenuCheckboxItem
-                    key={column.id}
-                    className="capitalize"
-                    checked={column.getIsVisible()}
-                    onCheckedChange={(value) =>
-                      column.toggleVisibility(!!value)
-                    }
-                  >
-                    {column.id}
-                  </DropdownMenuCheckboxItem>
-                );
-              })}
+              .map((column) => (
+                <DropdownMenuCheckboxItem
+                  key={column.id}
+                  className="capitalize"
+                  checked={column.getIsVisible()}
+                  onCheckedChange={(value) => column.toggleVisibility(!!value)}
+                >
+                  {column.id}
+                </DropdownMenuCheckboxItem>
+              ))}
           </DropdownMenuContent>
         </DropdownMenu>
+        <Button className="ml-2">Add Test</Button>
       </div>
 
       <div className="rounded-md border">
@@ -109,23 +121,31 @@ export function DataTable<TData, TValue>({
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>
-                {headerGroup.headers.map((header) => {
-                  return (
-                    <TableHead key={header.id}>
-                      {header.isPlaceholder
-                        ? null
-                        : flexRender(
-                            header.column.columnDef.header,
-                            header.getContext()
-                          )}
-                    </TableHead>
-                  );
-                })}
+                {headerGroup.headers.map((header) => (
+                  <TableHead key={header.id}>
+                    {header.isPlaceholder
+                      ? null
+                      : flexRender(
+                          header.column.columnDef.header,
+                          header.getContext()
+                        )}
+                  </TableHead>
+                ))}
               </TableRow>
             ))}
           </TableHeader>
           <TableBody>
-            {table.getRowModel().rows?.length ? (
+            {data === undefined ? (
+              [...Array(5)].map((_, index) => (
+                <TableRow key={`skeleton-row-${index}`}>
+                  {columns.map((column, columnIndex) => (
+                    <TableCell key={`skeleton-cell-${columnIndex}`}>
+                      <Skeleton className="w-full h-6" />
+                    </TableCell>
+                  ))}
+                </TableRow>
+              ))
+            ) : table.getRowModel().rows?.length ? (
               table.getRowModel().rows.map((row) => (
                 <TableRow
                   key={row.id}

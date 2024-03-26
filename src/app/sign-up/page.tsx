@@ -4,7 +4,7 @@ import { SignUp } from "@clerk/nextjs";
 export default function AppSignUp() {
   return (
     <GridBackground>
-      <SignUp afterSignInUrl="/build" />
+      <SignUp />
     </GridBackground>
   );
 }

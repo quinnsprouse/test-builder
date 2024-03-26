@@ -296,7 +296,7 @@ export default function SidebarLayout({
                 />
               </form>
               <div className="flex items-center gap-x-4 lg:gap-x-6">
-                <UserButton />
+                <UserButton afterSignOutUrl="/" />
                 <ModeToggle />
               </div>
             </div>

@@ -1,8 +1,9 @@
 import { ThemeProvider } from "@/components/theme-provider";
-import { ClerkProvider } from "@clerk/nextjs";
+
 import { cn } from "@/lib/utils";
 import "@/styles/globals.css";
 import { Inter as FontSans } from "next/font/google";
+import ConvexClientProvider from "@/components/ConvexClientProvider";
 
 const fontSans = FontSans({
   subsets: ["latin"],
@@ -15,7 +16,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <ClerkProvider>
+    <ConvexClientProvider>
       <html lang="en" suppressHydrationWarning>
         <head />
         <body
@@ -34,6 +35,6 @@ export default function RootLayout({
           </ThemeProvider>
         </body>
       </html>
-    </ClerkProvider>
+    </ConvexClientProvider>
   );
 }
