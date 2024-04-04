@@ -1,5 +1,4 @@
 "use client";
-
 import { Cross2Icon } from "@radix-ui/react-icons";
 import { Table } from "@tanstack/react-table";
 import { DataTableFacetedFilter } from "./data-table-faceted-filter";
@@ -7,6 +6,8 @@ import { Input } from "../ui/input";
 import { Button } from "../ui/button";
 import { priorities, statuses } from "@/data/data";
 import { DataTableViewOptions } from "./data-table-view-options";
+import { useState } from "react";
+import AddTestButton from "../add-test-dialog";
 
 interface DataTableToolbarProps<TData> {
   table: Table<TData>;
@@ -16,6 +17,7 @@ export function DataTableToolbar<TData>({
   table,
 }: DataTableToolbarProps<TData>) {
   const isFiltered = table.getState().columnFilters.length > 0;
+  const [isAddTestDialogOpen, setIsAddTestDialogOpen] = useState(false);
 
   return (
     <div className="flex items-center justify-between">
@@ -54,7 +56,7 @@ export function DataTableToolbar<TData>({
         )}
       </div>
       <DataTableViewOptions table={table} />
-      <Button className="h-8 px-3 ml-2">Add Test</Button>
+      <AddTestButton />
     </div>
   );
 }

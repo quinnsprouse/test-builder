@@ -47,6 +47,7 @@ export function DataTable<TData, TValue>({
   );
   const [columnVisibility, setColumnVisibility] =
     React.useState<VisibilityState>({});
+  const [isAddTestDialogOpen, setIsAddTestDialogOpen] = useState(false);
 
   const table = useReactTable({
     data,
@@ -113,7 +114,6 @@ export function DataTable<TData, TValue>({
               ))}
           </DropdownMenuContent>
         </DropdownMenu>
-        <Button className="ml-2">Add Test</Button>
       </div>
 
       <div className="rounded-md border">
