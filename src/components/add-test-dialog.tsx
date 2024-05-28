@@ -95,11 +95,7 @@ export default function AddTestButton() {
           </div>
           <div className="space-y-2">
             <Label htmlFor="status">Status</Label>
-            <Select
-              id="status"
-              defaultValue="pending"
-              onValueChange={handleStatusChange}
-            >
+            <Select defaultValue="pending" onValueChange={handleStatusChange}>
               <SelectTrigger className="w-full">
                 <SelectValue placeholder="Select status" />
               </SelectTrigger>
