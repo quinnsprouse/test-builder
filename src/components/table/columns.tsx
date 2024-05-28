@@ -31,9 +31,11 @@ export const columns: ColumnDef<Test>[] = [
     enableSorting: false,
   },
   {
-    accessorKey: "label",
+    accessorKey: "automated",
     header: ({ column }) => <></>,
-    cell: ({ row }) => <></>,
+    cell: ({ row }) => (
+      <Badge>{row.getValue("automated") ? "Automated" : "Manual"}</Badge>
+    ),
   },
   {
     accessorKey: "desc",
@@ -43,7 +45,6 @@ export const columns: ColumnDef<Test>[] = [
     cell: ({ row }) => {
       return (
         <div className="flex space-x-2">
-          <Badge>{row.getValue("label")}</Badge>
           <span className="max-w-[500px] truncate font-medium">
             {row.getValue("desc")}
           </span>

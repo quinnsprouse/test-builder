@@ -1,5 +1,6 @@
 import { v } from "convex/values";
 import { mutation, query } from "./_generated/server";
+import test from "node:test";
 
 export const getTests = query({
   args: {},
@@ -22,6 +23,29 @@ export const addTest = mutation({
     notes: v.string(),
   },
   handler: async (ctx, args) => {
-    const testId = await ctx.db.insert("tests", args);
+    // Find the latest test using the index
+    const lastTest = await ctx.db
+      .query("tests")
+      .withIndex("by_creation_time")
+      .order("desc")
+      .first();
+
+    // Calculate the nextTestId
+    const nextTestId = `TEST-${
+      lastTest ? parseInt(lastTest.testId.slice(5)) + 1 : 1
+    }`;
+
+    // Insert the new test with the calculated testId
+    await ctx.db.insert("tests", {
+      ...args, // Spread the other arguments
+      testId: nextTestId,
+    });
+  },
+});
+
+export const deleteTest = mutation({
+  args: { id: v.id("tests") },
+  handler: async (ctx, args) => {
+    await ctx.db.delete(args.id);
   },
 });

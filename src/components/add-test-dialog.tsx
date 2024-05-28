@@ -1,8 +1,5 @@
-/**
- * v0 by Vercel.
- * @see https://v0.dev/t/2GOgRoVfG8h
- * Documentation: https://v0.dev/docs#integrating-generated-code-into-your-nextjs-app
- */
+"use client";
+/** * v0 by Vercel. * @see https://v0.dev/t/2GOgRoVfG8h * Documentation: https://v0.dev/docs#integrating-generated-code-into-your-nextjs-app */
 import { Button } from "@/components/ui/button";
 import {
   DialogTrigger,
@@ -25,18 +22,58 @@ import {
 import { RadioGroupItem, RadioGroup } from "@/components/ui/radio-group";
 import { Textarea } from "@/components/ui/textarea";
 import { useState } from "react";
+import { useMutation } from "convex/react";
+import { api } from "../../convex/_generated/api";
 
 export default function AddTestButton() {
   const [scenario, setScenario] = useState("");
-  const [status, setStatus] = useState("");
-  const [type, setType] = useState("");
-  const [priority, setPriority] = useState("");
+  const [status, setStatus] = useState("pending");
+  const [priority, setPriority] = useState("medium");
   const [notes, setNotes] = useState("");
+  const [isAutomated, setIsAutomated] = useState(false);
+  const [isOpen, setOpen] = useState(false);
+  const testId = "test-id";
+
+  const addTest = useMutation(api.tests.addTest);
+
+  const handleSubmit = async (event: any) => {
+    event.preventDefault();
+    try {
+      await addTest({
+        testId: testId,
+        automated: isAutomated,
+        createdBy: "",
+        createdByImg: "",
+        desc: scenario,
+        lastTested: "",
+        status: status,
+        priority: priority,
+        label: "",
+        notes: notes,
+      });
+
+      setOpen(false);
+    } catch (error) {
+      console.error("Error adding test:", error);
+    }
+  };
+
+  const handleStatusChange = (value: string) => {
+    setStatus(value);
+  };
+
+  const handlePriorityChange = (value: string) => {
+    setPriority(value);
+  };
+
+  const handleTypeChange = (value: string) => {
+    setIsAutomated(value === "automated");
+  };
 
   return (
-    <Dialog>
+    <Dialog open={isOpen} onOpenChange={(isOpen) => setOpen(isOpen)}>
       <DialogTrigger asChild>
-        <Button className="h-8 px-2 lg:px-3 ml-2">Open Form</Button>
+        <Button className="h-8 px-2 lg:px-3 ml-2">Create quick test</Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[600px]">
         <DialogHeader>
@@ -45,22 +82,31 @@ export default function AddTestButton() {
             Fill in the form below to add a new test
           </DialogDescription>
         </DialogHeader>
-        <div className="grid gap-4 py-4">
+        <form onSubmit={handleSubmit} className="grid gap-4 py-4">
+          {" "}
           <div className="space-y-2">
             <Label htmlFor="scenario">Scenario</Label>
-            <Input id="scenario" placeholder="Describe the scenario" />
+            <Input
+              id="scenario"
+              placeholder="Describe the scenario"
+              value={scenario}
+              onChange={(e) => setScenario(e.target.value)}
+            />
           </div>
           <div className="space-y-2">
             <Label htmlFor="status">Status</Label>
-            <Select id="status">
+            <Select
+              id="status"
+              defaultValue="pending"
+              onValueChange={handleStatusChange}
+            >
               <SelectTrigger className="w-full">
                 <SelectValue placeholder="Select status" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="Not Started">Not Started</SelectItem>
-                <SelectItem value="In Progress">In Progress</SelectItem>
-                <SelectItem value="Completed">Completed</SelectItem>
-                <SelectItem value="Blocked">Blocked</SelectItem>
+                <SelectItem value="pending">Pending</SelectItem>
+                <SelectItem value="pass">Pass</SelectItem>
+                <SelectItem value="fail">Fail</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -68,13 +114,16 @@ export default function AddTestButton() {
             <fieldset className="flex-1 space-y-2">
               <legend className="font-medium">Type</legend>
               <div className="flex items-center gap-4">
-                <RadioGroup defaultValue="comfortable">
+                <RadioGroup
+                  defaultValue="manual"
+                  onValueChange={handleTypeChange}
+                >
                   <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="default" id="r1" />
+                    <RadioGroupItem value="manual" id="r1" />
                     <Label htmlFor="r1">Manual</Label>
                   </div>
                   <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="comfortable" id="r2" />
+                    <RadioGroupItem value="automated" id="r2" />
                     <Label htmlFor="r2">Automated</Label>
                   </div>
                 </RadioGroup>
@@ -82,14 +131,17 @@ export default function AddTestButton() {
             </fieldset>
             <div className="flex-1 space-y-2">
               <Label htmlFor="priority">Priority</Label>
-              <Select id="priority">
+              <Select
+                defaultValue="medium"
+                onValueChange={handlePriorityChange} // Update state on change
+              >
                 <SelectTrigger className="w-full">
                   <SelectValue placeholder="Select priority" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="High">High</SelectItem>
-                  <SelectItem value="Medium">Medium</SelectItem>
-                  <SelectItem value="Low">Low</SelectItem>
+                  <SelectItem value="high">High</SelectItem>
+                  <SelectItem value="medium">Medium</SelectItem>
+                  <SelectItem value="low">Low</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -100,15 +152,25 @@ export default function AddTestButton() {
               className="min-h-[100px]"
               id="notes"
               placeholder="Any additional notes"
+              value={notes}
+              onChange={(e) => setNotes(e.target.value)}
             />
           </div>
-        </div>
-        <DialogFooter>
-          <Button type="submit">Save</Button>
-          <div>
-            <Button variant="outline">Cancel</Button>
-          </div>
-        </DialogFooter>
+          <DialogFooter>
+            <Button type="submit">Save</Button>
+            <div>
+              <Button
+                variant="outline"
+                type="button"
+                onClick={(event) => {
+                  setOpen(false);
+                }}
+              >
+                Cancel
+              </Button>
+            </div>
+          </DialogFooter>
+        </form>
       </DialogContent>
     </Dialog>
   );
