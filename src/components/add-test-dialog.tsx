@@ -24,6 +24,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { useState } from "react";
 import { useMutation } from "convex/react";
 import { api } from "../../convex/_generated/api";
+import { toast } from "sonner";
+import { format } from "date-fns";
 
 export default function AddTestButton() {
   const [scenario, setScenario] = useState("");
@@ -52,7 +54,19 @@ export default function AddTestButton() {
         notes: notes,
       });
 
+      const today = new Date();
+      const formattedDate = format(today, "EEEE, MMMM d, yyyy at h:mm a");
+
       setOpen(false);
+      toast("Test has been created", {
+        description: formattedDate,
+        action: {
+          label: "View test",
+          onClick: () => {
+            console.log("View test");
+          },
+        },
+      });
     } catch (error) {
       console.error("Error adding test:", error);
     }
